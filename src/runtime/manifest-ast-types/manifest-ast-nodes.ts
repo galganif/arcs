@@ -771,6 +771,7 @@ export interface SchemaInline extends BaseNodeWithRefinement {
   kind: 'schema-inline';
   names: string[];
   fields: SchemaInlineField[];
+  external: boolean;
 }
 
 export interface NestedSchema extends BaseNodeWithRefinement {
@@ -786,6 +787,7 @@ export interface SchemaInlineField extends BaseNode {
 
 export interface SchemaSpec extends BaseNode {
   kind: 'schema';
+  external: boolean;
   names: string[];
   parents: string[];
 }

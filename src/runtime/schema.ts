@@ -31,6 +31,7 @@ export class Schema {
   refinement?: Refinement;
   description: Dictionary<string> = {};
   isAlias: boolean;
+  readonly external: boolean = false;
   hashStr: string = null;
   _annotations: AnnotationRef[];
   // The implementation of fromLiteral creates a cyclic dependency, so it is
@@ -43,11 +44,13 @@ export class Schema {
   // in `fields`; the constructor will convert these to the correct schema form.
   // tslint:disable-next-line: no-any
   constructor(names: string[], fields: Dictionary<any>,
-      options: {description?, refinement?: Refinement, annotations?: AnnotationRef[]} = {}
+      options: {description?, refinement?: Refinement, annotations?: AnnotationRef[], external?: boolean} = {}
     ) {
     this.names = names;
     this.fields = {};
     this.refinement = options.refinement || null;
+    this.external = options.external;
+    // I can also check that there are no fields.
     const fNs = this.refinement && this.refinement.getFieldParams();
     // if the schema level refinement is univariate, propogate it to the appropriate field
     if (fNs && fNs.size === 1 && Flags.fieldRefinementsAllowed) {

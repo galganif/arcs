@@ -381,6 +381,49 @@ describe('manifest parser', () => {
         }
     `);
   });
+  it('parses an hard ref schema', () => {
+    parse(`
+      schema Abcd
+        fieldBefore: Double
+        normalRef: &Package
+        hardRef: &Package @hardRef
+        fieldAfter: Long
+    `);
+  });
+  it('parses an hard ref schema2', () => {
+    parse(`
+      schema Package
+      particle Foo
+        containsNested: reads ContainsNested {
+          fieldBefore: Double,
+          normalRef: &Package,
+          hardRef: &Package @hardRef,
+          fieldAfter: Long
+        }
+    `);
+  });
+  it('parses an external schema', () => {
+    parse(`
+      external schema Package
+      particle Foo
+        containsNested: reads ContainsNested {
+          fieldBefore: Double,
+          normalRef: &Package,
+          fieldAfter: Long
+        }
+    `);
+  });
+  it('parses an external references', () => {
+    parse(`
+      particle Foo
+        containsNested: reads ContainsNested {
+          fieldBefore: Double,
+          normalRef: &Package,
+          externalPackage: external &Package,
+          fieldAfter: Long
+        }
+    `);
+  });
   it('parses a schema with a list of nested schemas', () => {
     parse(`
       schema ContainsNested

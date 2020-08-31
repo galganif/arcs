@@ -226,3 +226,242 @@ particle T
         }
     }
 -----[end]-----
+
+-----[name]-----
+generates private constructor for external schema
+-----[input]-----
+external schema Package
+particle T
+  h1: reads Thing {apppackage: &Package}
+-----[results]-----
+
+    @Suppress("UNCHECKED_CAST")
+    class Package(
+        entityId: String? = null,
+        creationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP,
+        expirationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP
+    ) : arcs.sdk.EntityBase("Package", SCHEMA, entityId, creationTimestamp, expirationTimestamp, false) {
+        
+        /**
+         * Use this method to create a new, distinctly identified copy of the entity.
+         * Storing the copy will result in a new copy of the data being stored.
+         */
+        fun copy() = Package()
+
+        /**
+         * Use this method to create a new version of an existing entity.
+         * Storing the mutation will overwrite the existing entity in the set, if it exists.
+         */
+        fun mutate() = Package(
+            entityId = entityId,
+            creationTimestamp = creationTimestamp,
+            expirationTimestamp = expirationTimestamp
+        )
+        
+        companion object : arcs.sdk.EntitySpec<Package> {
+            
+            override val SCHEMA = arcs.core.data.Schema(
+                setOf(arcs.core.data.SchemaName("Package")),
+                arcs.core.data.SchemaFields(
+                    singletons = emptyMap(),
+                    collections = emptyMap()
+                ),
+                "e66546dddeeeeb244d5cefb50aec907475ebf424",
+                refinementExpression = true.asExpr(),
+                queryExpression = true.asExpr()
+            )
+
+            private val nestedEntitySpecs: Map<String, arcs.sdk.EntitySpec<out arcs.sdk.Entity>> =
+                emptyMap()
+
+            init {
+                arcs.core.data.SchemaRegistry.register(SCHEMA)
+            }
+            
+            override fun deserialize(data: arcs.core.data.RawEntity) = Package().apply {
+                deserialize(data, nestedEntitySpecs)
+            }
+        }
+    }
+-----[next]-----
+
+    @Suppress("UNCHECKED_CAST")
+    class Thing(
+        apppackage: arcs.sdk.Reference<Package>? = null,
+        entityId: String? = null,
+        creationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP,
+        expirationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP
+    ) : arcs.sdk.EntityBase("Thing", SCHEMA, entityId, creationTimestamp, expirationTimestamp, false) {
+        
+        var apppackage: arcs.sdk.Reference<Package>?
+            get() = super.getSingletonValue("apppackage") as arcs.sdk.Reference<Package>?
+            private set(_value) = super.setSingletonValue("apppackage", _value)
+        
+        init {
+            this.apppackage = apppackage
+        }
+        
+        /**
+         * Use this method to create a new, distinctly identified copy of the entity.
+         * Storing the copy will result in a new copy of the data being stored.
+         */
+        fun copy(apppackage: arcs.sdk.Reference<Package>? = this.apppackage) = Thing(apppackage = apppackage)
+
+        /**
+         * Use this method to create a new version of an existing entity.
+         * Storing the mutation will overwrite the existing entity in the set, if it exists.
+         */
+        fun mutate(apppackage: arcs.sdk.Reference<Package>? = this.apppackage) = Thing(
+            apppackage = apppackage,
+            entityId = entityId,
+            creationTimestamp = creationTimestamp,
+            expirationTimestamp = expirationTimestamp
+        )
+        
+        companion object : arcs.sdk.EntitySpec<Thing> {
+            
+            override val SCHEMA = arcs.core.data.Schema(
+                setOf(arcs.core.data.SchemaName("Thing")),
+                arcs.core.data.SchemaFields(
+                    singletons = mapOf(
+                        "apppackage" to arcs.core.data.FieldType.EntityRef("e66546dddeeeeb244d5cefb50aec907475ebf424")
+                    ),
+                    collections = emptyMap()
+                ),
+                "ab9592e35fddd0c0833b05289b88ddf4fe41958c",
+                refinementExpression = true.asExpr(),
+                queryExpression = true.asExpr()
+            )
+
+            private val nestedEntitySpecs: Map<String, arcs.sdk.EntitySpec<out arcs.sdk.Entity>> =
+                mapOf("e66546dddeeeeb244d5cefb50aec907475ebf424" to Package)
+
+            init {
+                arcs.core.data.SchemaRegistry.register(SCHEMA)
+            }
+            
+            override fun deserialize(data: arcs.core.data.RawEntity) = Thing().apply {
+                deserialize(data, nestedEntitySpecs)
+            }
+        }
+    }
+-----[end]-----
+
+-----[name]-----
+generates private constructor for external reference
+-----[input]-----
+particle T
+  h1: reads Thing {apppackage: external &Packager}
+-----[results]-----
+
+    @Suppress("UNCHECKED_CAST")
+    class Packager(
+        entityId: String? = null,
+        creationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP,
+        expirationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP
+    ) : arcs.sdk.EntityBase("Packager", SCHEMA, entityId, creationTimestamp, expirationTimestamp, false) {
+        
+        /**
+         * Use this method to create a new, distinctly identified copy of the entity.
+         * Storing the copy will result in a new copy of the data being stored.
+         */
+        fun copy() = Packager()
+
+        /**
+         * Use this method to create a new version of an existing entity.
+         * Storing the mutation will overwrite the existing entity in the set, if it exists.
+         */
+        fun mutate() = Packager(
+            entityId = entityId,
+            creationTimestamp = creationTimestamp,
+            expirationTimestamp = expirationTimestamp
+        )
+        
+        companion object : arcs.sdk.EntitySpec<Packager> {
+            
+            override val SCHEMA = arcs.core.data.Schema(
+                setOf(arcs.core.data.SchemaName("Packager")),
+                arcs.core.data.SchemaFields(
+                    singletons = emptyMap(),
+                    collections = emptyMap()
+                ),
+                "2aec5c62cb7c749b1a9e9b7a63d7eec057507c09",
+                refinementExpression = true.asExpr(),
+                queryExpression = true.asExpr()
+            )
+
+            private val nestedEntitySpecs: Map<String, arcs.sdk.EntitySpec<out arcs.sdk.Entity>> =
+                emptyMap()
+
+            init {
+                arcs.core.data.SchemaRegistry.register(SCHEMA)
+            }
+            
+            override fun deserialize(data: arcs.core.data.RawEntity) = Packager().apply {
+                deserialize(data, nestedEntitySpecs)
+            }
+        }
+    }
+-----[next]-----
+
+    @Suppress("UNCHECKED_CAST")
+    class Thing(
+        apppackage: arcs.sdk.Reference<Packager>? = null,
+        entityId: String? = null,
+        creationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP,
+        expirationTimestamp: Long = arcs.core.data.RawEntity.UNINITIALIZED_TIMESTAMP
+    ) : arcs.sdk.EntityBase("Thing", SCHEMA, entityId, creationTimestamp, expirationTimestamp, false) {
+        
+        var apppackage: arcs.sdk.Reference<Packager>?
+            get() = super.getSingletonValue("apppackage") as arcs.sdk.Reference<Packager>?
+            private set(_value) = super.setSingletonValue("apppackage", _value)
+        
+        init {
+            this.apppackage = apppackage
+        }
+        
+        /**
+         * Use this method to create a new, distinctly identified copy of the entity.
+         * Storing the copy will result in a new copy of the data being stored.
+         */
+        fun copy(apppackage: arcs.sdk.Reference<Packager>? = this.apppackage) = Thing(apppackage = apppackage)
+
+        /**
+         * Use this method to create a new version of an existing entity.
+         * Storing the mutation will overwrite the existing entity in the set, if it exists.
+         */
+        fun mutate(apppackage: arcs.sdk.Reference<Packager>? = this.apppackage) = Thing(
+            apppackage = apppackage,
+            entityId = entityId,
+            creationTimestamp = creationTimestamp,
+            expirationTimestamp = expirationTimestamp
+        )
+        
+        companion object : arcs.sdk.EntitySpec<Thing> {
+            
+            override val SCHEMA = arcs.core.data.Schema(
+                setOf(arcs.core.data.SchemaName("Thing")),
+                arcs.core.data.SchemaFields(
+                    singletons = mapOf(
+                        "apppackage" to arcs.core.data.FieldType.EntityRef("2aec5c62cb7c749b1a9e9b7a63d7eec057507c09")
+                    ),
+                    collections = emptyMap()
+                ),
+                "ae1e9a821f3b8b4c160b21f693587e231c494ca5",
+                refinementExpression = true.asExpr(),
+                queryExpression = true.asExpr()
+            )
+
+            private val nestedEntitySpecs: Map<String, arcs.sdk.EntitySpec<out arcs.sdk.Entity>> =
+                mapOf("2aec5c62cb7c749b1a9e9b7a63d7eec057507c09" to Packager)
+
+            init {
+                arcs.core.data.SchemaRegistry.register(SCHEMA)
+            }
+            
+            override fun deserialize(data: arcs.core.data.RawEntity) = Thing().apply {
+                deserialize(data, nestedEntitySpecs)
+            }
+        }
+    }
+-----[end]-----

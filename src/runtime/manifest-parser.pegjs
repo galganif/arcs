@@ -1474,7 +1474,8 @@ SchemaInline
     return toAstNode<AstNode.SchemaInline>({
       kind: 'schema-inline',
       names: optional(names, names => names.map(name => name[0]).filter(name => name !== '*'), ['*']),
-      fields: optional(fields, fields => [fields[0], ...fields[1].map(tail => tail[2])], [])
+      fields: optional(fields, fields => [fields[0], ...fields[1].map(tail => tail[2])], []),
+      external: false
     });
   }
 
@@ -1500,10 +1501,11 @@ SchemaInlineField
   }
 
 SchemaSpec
-  = 'schema' names:(whiteSpace ('*' / upperIdent))+ parents:SchemaExtends?
+  = external:('external' whiteSpace)? 'schema' names:(whiteSpace ('*' / upperIdent))+ parents:SchemaExtends?
   {
     return toAstNode<AstNode.SchemaSpec>({
       kind: 'schema',
+      external: !!external,
       names: names.map(name => name[1]).filter(name => name !== '*'),
       parents: optional(parents, parents => parents, []),
     });
@@ -1552,6 +1554,7 @@ SchemaField
 
 SchemaType
   = type:(SchemaReferenceType
+  / SchemaExternalReferenceType
   / SchemaCollectionType
   / SchemaOrderedListType
   / SchemaPrimitiveType
@@ -1592,6 +1595,19 @@ SchemaReferenceType = '&' whiteSpace? schema:(SchemaInline / TypeName)
     return toAstNode<AstNode.SchemaReferenceType>({
       kind: 'schema-reference',
       schema
+    });
+  }
+
+SchemaExternalReferenceType = 'external &' whiteSpace? schema:(TypeName)
+  {
+    return toAstNode<AstNode.SchemaReferenceType>({
+      kind: 'schema-reference',
+      schema: toAstNode<AstNode.SchemaInline>({
+        kind: 'schema-inline',
+        names: [schema.name],
+        fields: [],
+        external: true
+      })
     });
   }
 

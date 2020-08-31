@@ -82,5 +82,10 @@ annotation policy(name: Text)
   retention: Source
   doc: 'Indicates that the target recipe should comply with the policy of the given name.'
 
+annotation hardRef
+  targets: [SchemaField]
+  retention: Runtime
+  doc: 'todo'
+
 ${canonicalPolicyAnnotations}
 `;

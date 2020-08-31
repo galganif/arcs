@@ -63,7 +63,11 @@ export class KotlinEntityGenerator implements EntityGenerator {
   }
 
   generateClassDefinition(): string {
-    const ctorType = this.node.variableName == null ? '(' : ' private constructor(';
+    if ('Packager' === this.node.schema.names[0]) {
+      console.log('generating classdefinition for ', this.node.schema);
+    }
+    const privateCtor = this.node.schema.external || this.node.variableName != null;
+    const ctorType = privateCtor ? ' private constructor(' : '(';
 
     const classDecl = `\
     class ${this.className}${ctorType}`;
