@@ -76,7 +76,10 @@ class EntityStorageAdapter<T : Entity>(
         val rawEntity = value.serialize(storeSchema)
         // Check storage key for all reference fields.
         rawEntity.allData.forEach { (_, value) ->
-            if (value is StorageReference) { checkStorageKey(storageKey, value.storageKey) }
+            if (value is StorageReference) {
+                // Foreign reference may not have storage keys.
+                value.storageKey?.let { checkStorageKey(storageKey, it) }
+            }
         }
 
         require(entitySpec.SCHEMA.refinement(rawEntity)) {
@@ -112,7 +115,8 @@ class ReferenceStorageAdapter<E : Entity>(
     override fun storableToReferencable(value: Reference<E>): StorageReference {
         value.ensureTimestampsAreSet(time, ttl)
         val referencable = value.toReferencable()
-        checkStorageKey(storageKey, referencable.storageKey)
+        // Storable references must have storage key.
+        checkStorageKey(storageKey, checkNotNull(referencable.storageKey))
         return referencable
     }
 

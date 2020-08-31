@@ -204,6 +204,12 @@ open class EntityBase(
                 require(value is Reference<*>) {
                     "Expected Reference for $context$entityClassName.$field, but received $value."
                 }
+                if(type.hard) {
+                    require(value.hard)
+                }
+                // if(value is ForeignReference<*, *>) {
+                //     check(value.isAlive())
+                // } 
                 require(value.schemaHash == type.schemaHash) {
                     "Expected Reference type to have schema hash ${type.schemaHash} but had " +
                         "schema hash ${value.schemaHash}."
@@ -426,6 +432,12 @@ private fun fromReferencable(
             val entitySpec = requireNotNull(nestedEntitySpecs[type.schemaHash]) {
                 "Unknown schema with hash ${type.schemaHash}."
             }
+            // if (referencable.storageKey==null) {
+            //     // Foreign key.
+            //     val a: ForeignReference<*, *> = ForeignReferenceFactory.getFor(entitySpec.SCHEMA, referencable.id)
+            //     return a
+            //     // Problem is I cannot see what T is here (ie get Package).
+            // }
             Reference(entitySpec, referencable)
         }
         // TODO(b/155025255)

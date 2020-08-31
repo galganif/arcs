@@ -17,7 +17,9 @@ import arcs.core.crdt.VersionMap
 import arcs.core.data.Capability.Ttl
 import arcs.core.data.RawEntity
 import arcs.core.data.Schema
+import arcs.core.util.TaggedLog
 import arcs.core.util.Time
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * [arcs.core.storage.ReferenceModeStore] uses an expanded notion of Reference that also includes a
@@ -28,12 +30,13 @@ import arcs.core.util.Time
  */
 data class Reference(
     override val id: ReferenceId,
-    val storageKey: StorageKey,
+    val storageKey: StorageKey? = null,
     val version: VersionMap?,
     /** Reference creation time (in milliseconds). */
     private var _creationTimestamp: Long = RawEntity.UNINITIALIZED_TIMESTAMP,
     /** Reference expiration time (in milliseconds). */
-    private var _expirationTimestamp: Long = RawEntity.UNINITIALIZED_TIMESTAMP
+    private var _expirationTimestamp: Long = RawEntity.UNINITIALIZED_TIMESTAMP,
+    val hard: Boolean =false
 ) : Referencable, arcs.core.data.Reference<RawEntity> {
     /* internal */
     var dereferencer: Dereferencer<RawEntity>? = null
@@ -50,12 +53,16 @@ data class Reference(
         }
     }
 
-    override suspend fun dereference(): RawEntity? =
-        requireNotNull(dereferencer) {
+    override suspend fun dereference(): RawEntity? {
+        // if(storageKey==null) {
+        //     return ForeignEntityFactory.getFor(schema, id)
+        // }
+        return requireNotNull(dereferencer) {
             "No dereferencer installed on Reference object"
         }.dereference(this)
+    }
 
-    fun referencedStorageKey() = storageKey.childKeyWithComponent(id)
+    fun referencedStorageKey() = checkNotNull(storageKey?.childKeyWithComponent(id))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -103,3 +110,4 @@ interface Dereferencer<T> {
 /** Converts any [Referencable] object into a reference-mode-friendly [Reference] object. */
 fun Referencable.toReference(storageKey: StorageKey, version: VersionMap? = null) =
     Reference(id, storageKey, version, creationTimestamp, expirationTimestamp)
+

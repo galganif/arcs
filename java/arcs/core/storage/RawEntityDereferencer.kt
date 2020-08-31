@@ -15,6 +15,8 @@ import arcs.core.crdt.CrdtEntity
 import arcs.core.data.EntityType
 import arcs.core.data.RawEntity
 import arcs.core.data.Schema
+import arcs.core.entity.ForeignEntityFactory
+import arcs.core.entity.ForeignStorageKey
 import arcs.core.util.Scheduler
 import arcs.core.util.TaggedLog
 import kotlinx.coroutines.CompletableDeferred
@@ -42,7 +44,14 @@ class RawEntityDereferencer(
     override suspend fun dereference(reference: Reference): RawEntity? {
         log.verbose { "De-referencing $reference" }
 
-        val storageKey = reference.referencedStorageKey()
+        val sk = reference.storageKey
+        if(sk is ForeignStorageKey) { //otherwise I could throw here, but then there would be no way to check it
+            // ForeignEntityFactory2.check(schema, reference.id)
+            // return RawEntity(id=reference.id)
+            return ForeignEntityFactory.getSerializedFor(sk.schema, reference.id)
+        }
+
+        val storageKey = checkNotNull(reference.referencedStorageKey())
 
         val options = StoreOptions(
             storageKey,

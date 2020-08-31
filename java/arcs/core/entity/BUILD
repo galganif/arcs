@@ -24,3 +24,13 @@ arcs_kt_library(
         "//third_party/kotlin/kotlinx_coroutines",
     ],
 )
+
+arcs_kt_library(
+    name = "foreign",
+    srcs = [
+        "ForeignEntityFactory.kt",
+    ],
+    deps = [
+        "//java/arcs/core/data",
+    ],
+)

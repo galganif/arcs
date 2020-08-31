@@ -225,7 +225,7 @@ var ${escaped}: ${type.kotlinType}
 
   private async generateEntitySpec() {
     const fieldCount = Object.keys(this.node.schema.fields).length;
-    return `companion object : ${this.opts.wasm ? 'WasmEntitySpec' : 'arcs.sdk.EntitySpec'}<${this.className}> {
+    return `companion object SPEC : ${this.opts.wasm ? 'WasmEntitySpec' : 'arcs.sdk.EntitySpec'}<${this.className}> {
             ${this.opts.wasm ? '' : `
             override val SCHEMA = ${leftPad(await generateSchema(this.node.schema), 12, true)}
 

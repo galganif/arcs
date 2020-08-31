@@ -23,7 +23,7 @@ sealed class FieldType(
     }
 
     /** A reference to an entity. */
-    data class EntityRef(val schemaHash: String) : FieldType(Tag.EntityRef) {
+    data class EntityRef(val schemaHash: String, val hard: Boolean = false) : FieldType(Tag.EntityRef) {
         override fun toString() = "&$schemaHash"
     }
 

@@ -5,6 +5,14 @@ schema TestEntity
   text: Text
   number: Number
   list: List<Long>
+  ppackage: &Package
+  ccontact: &Contact
+
+//@ExternalSchema // do not create this
+schema Package
+
+//@ExternalSchema // do not create this
+schema Contact
 
 schema TestInline
   inline: inline InlineEntity {long: Long, text: Text}
@@ -19,10 +27,10 @@ schema TestReferences
   referenceList: List<&ReferencedSchema>
 
 particle TestParticle
-  entities: reads writes [TestEntity {text, number, list} [text == ?]]
+  entities: reads writes [TestEntity {text, number, list, ppackage, ccontact} [text == ?]]
 
 particle TestInlineParticle
-  entities: reads writes [TestInline {inline, inlines, inlineList}]
+  entities: reads writes [TestInline]
 
 particle TestReferencesParticle
   entities: reads writes [TestReferences {references, referenceList}]

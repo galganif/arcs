@@ -21,37 +21,8 @@ import arcs.core.util.Time
 import kotlin.IllegalArgumentException
 import kotlin.reflect.KClass
 
-interface Entity : Storable {
-    /** The ID for the entity, or null if it is does not have one yet. */
-    val entityId: String?
 
-    /** The creation timestamp of the entity. Set at the same time the ID is set. */
-    val creationTimestamp: Long
 
-    /** The expiration timestamp of the entity. Set at the same time the ID is set. */
-    val expirationTimestamp: Long
-
-    /**
-     * Generates a new ID for the Entity, if it doesn't already have one. Also sets creation
-     * timestamp, and expiry timestamp if a ttl is given
-     * */
-    fun ensureEntityFields(
-        idGenerator: Id.Generator,
-        handleName: String,
-        time: Time,
-        ttl: Ttl = Ttl.Infinite()
-    )
-
-    /**
-     * Takes a concrete entity class [T] and convert it to [RawEntity].
-     * @param storeSchema an optional [Schema] restricting entity serialization only to fields
-     * allowed by the policies.
-     */
-    fun serialize(storeSchema: Schema? = null): RawEntity
-
-    /** Resets all fields to the default value. */
-    fun reset()
-}
 
 /**
  * Spec for an [Entity] type. Can create and deserialize new entities.

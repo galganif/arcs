@@ -512,6 +512,125 @@ open class HandleManagerTestBase {
         assertThat(storageReference.dereference()).isEqualTo(createNulledOutPerson("entity1"))
     }
 
+    class PackageForeignIdentifier(val packageName: String): ForeignIdentifier {
+        override fun toSerial() = "package/"+packageName
+        companion object {
+            fun fromSerial(string: String) = PackageForeignIdentifier(string.split("/")[1])
+        }
+    }
+
+
+    class ContactForeignIdentifier(val name: String, val age: Long): ForeignIdentifier {
+        override fun toSerial() = name+"/"+age.toString()
+        companion object {
+            fun fromSerial(string: String): ContactForeignIdentifier {
+                val a = string.split("/")
+                return ContactForeignIdentifier(a[0],a[1].toLong())
+            }
+        }
+    }
+    class ForeignReferenceToPackage(fid: PackageForeignIdentifier)
+        : ForeignReference<AbstractTestParticle.Package, PackageForeignIdentifier>(fid, AbstractTestParticle.Package) {
+        override fun isAlive(): Boolean {
+            // check OS etc. // this access to full ForeignIdentifier
+            // PackageManager.getPackageInfo(...)...
+            val a = identifier
+            return true
+        }
+        constructor(packageName: String): this(PackageForeignIdentifier(packageName)) {
+            check(isAlive())
+        }
+        override fun shouldCheckonRead() = true
+
+        companion object {
+            fun triggerDatabaseDelete(packageName: String) {
+                PackageForeignIdentifier(packageName).toSerial() to AbstractTestParticle.Package.SCHEMA
+            }
+        }
+    }
+
+    class ForeignReferenceToContact(fid: ContactForeignIdentifier)
+        : ForeignReference<AbstractTestParticle.Contact, ContactForeignIdentifier>(fid, AbstractTestParticle.Contact) {
+        override fun isAlive(): Boolean {
+            val a = identifier
+            check(a.age==14L)
+            return true
+        }
+        constructor(name: String, age: Long): this(ContactForeignIdentifier(name,age)) {
+            check(isAlive())
+        }
+        override fun shouldCheckonRead() = true
+    }
+
+
+    @Test
+    fun singleton_referenceForeign() = testRunner {
+        // In Chronicle:
+        ForeignReferenceFactory.registerExternalEntityType<AbstractTestParticle.Package, PackageForeignIdentifier>(AbstractTestParticle.Package.SCHEMA) {
+                storedId -> ForeignReferenceToPackage(PackageForeignIdentifier.fromSerial(storedId))
+        }
+        ForeignReferenceFactory.registerExternalEntityType<AbstractTestParticle.Contact, ContactForeignIdentifier>(AbstractTestParticle.Contact.SCHEMA) {
+                storedId -> ForeignReferenceToContact(ContactForeignIdentifier.fromSerial(storedId))
+        }
+        ForeignEntityFactory.registerExternalEntityType<AbstractTestParticle.Package>(AbstractTestParticle.Package.SCHEMA) {
+                storedId ->
+            // Check is alive here.
+            println("====checked")
+            // Posso fare, se external, entityID deve essere passato!
+            AbstractTestParticle.Package(entityId=storedId)
+        }
+        ForeignEntityFactory3.registerExternalEntityType("package") {
+                storedId ->
+            // Check is alive here.
+            println("====checked %storedId")
+            Unit
+        }
+
+        // In chornicle.
+        fun foreignReferenceToPackage(packageName: String): Reference<AbstractTestParticle.Package> {
+            // val h: EntityHandle<AbstractTestParticle.Package> = EntityHandleFactory(AbstractTestParticle.Package).getHandle(packageName)
+            // val e: AbstractTestParticle.Package = h.fetch()
+            // val f: Reference<AbstractTestParticle.Package> = referenceToExt(e, AbstractTestParticle.Package.SPEC) // can we avoid this second param?
+            val f: Reference<AbstractTestParticle.Package> = referenceToExt(AbstractTestParticle.Package.SPEC, packageName)
+            return f
+        }
+
+        // Also needs something like ForeignIdentifier.registerType("package") {  }
+        // used when resolving in the database
+        val f = foreignReferenceToPackage("m.com.a")
+        f.dereference() //=alive check
+
+        //val kk: ForeignReference<out Entity, out ForeignIdentifier> = ForeignReferenceFactory.getFor(AbstractTestParticle.Package.SCHEMA, "mm")
+        //check(kk is ForeignReference<AbstractTestParticle.Package, PackageForeignIdentifier>)
+
+        // Create and store an entity.
+        val p = AbstractTestParticle.Package() // how do I prevent this? do I want to?
+        // val fkr = ForeignReferenceToPackage("aaaaa")
+        // val fkr2 = ForeignReferenceToContact(name="fil", age=14)
+        val entity = TestParticle_Entities(text = "Hello", ppackage =f)
+        val handle = writeHandleManager.createCollectionHandle(entitySpec = TestParticle_Entities)
+        handle.dispatchStore(entity)
+        f.dereference()
+        println(handle.dispatchFetchAll())
+        println(entity)
+        f.dereference()
+        val rb = entity.ppackage!!
+        f.dereference()
+        // if we want to check on read: in storageadapter call entitybase which looks at all references and check alive
+        // if (ff is ForeignReference<*, *>) {
+        //     if (ff.shouldCheckonRead()) {
+        //         assertThat(ff.isAlive()).isTrue()
+        //     }
+        // }
+        println("====="+rb.entityId)
+        val rb2 = handle.dispatchFetchAll().single().ppackage!!
+        println("====="+rb2.entityId)
+        assertThat(handle.dispatchFetchAll()).containsExactly(entity)
+        f.dereference()
+        //rb.dereference() // don't check the return value, but I can check that it is alive.
+        //rb2.dereference()
+    }
+
     @Test
     fun singleton_referenceHandle_referenceModeNotSupported() = testRunner {
         val e = assertSuspendingThrows(IllegalArgumentException::class) {

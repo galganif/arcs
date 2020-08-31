@@ -66,8 +66,6 @@ suspend fun <T : Handle> T.awaitReady(): T = suspendCancellableCoroutine { cont 
     }
 }
 
-/** Base interface for types that can be stored in a [Handle] (see [Entity] and [Reference]). */
-interface Storable
 
 /** Configuration for a [Handle]. */
 data class HandleSpec(
